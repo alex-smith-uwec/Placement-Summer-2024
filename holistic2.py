@@ -77,11 +77,13 @@ def H_mpt(gpa, mgpa, mpt, sen):
     Returns:
     int: MATHH level.
     """
-    h0 = H_none(gpa, mgpa, sen)
+    h0 = H_none(gpa, mgpa, sen)##updated May 29, 2024 with input from Abra
 
     if mpt <= h0 - 2:
         return h0-1 
     elif mpt <= h0:
+        return h0
+    elif mpt >= h0 + 4:
         return h0
     else:
         return min(h0 + 1, 7)
@@ -105,7 +107,7 @@ def H_mact(gpa, mgpa, mact, sen):
         return h0
     else:
         if mact >= 23:
-            return 5 ##propose changing this to 4, May 28, 2024
+            return 5 
         elif mact == 22:
             return 4
         elif mact == 21:
@@ -115,7 +117,7 @@ def H_mact(gpa, mgpa, mact, sen):
         else:
             return 1
 
-def H_both(gpa, mgpa, mact, mpt, sen):
+def H_both(gpa, mgpa, mact, mpt, sen): ##updated May 29, 2024 with input from Abra
     """
     Determines MATHH with additional info of both MACT and unproctored MPT.
     
@@ -132,6 +134,13 @@ def H_both(gpa, mgpa, mact, mpt, sen):
     value2 = H_none(gpa, mgpa, sen)
     value3 = H_mpt(gpa, mgpa, mpt, sen)
     value6 = H_mact(gpa, mgpa, mact, sen)
+    
+    if mpt >= value2 + 3 and value6 <= value2:
+        return value2
+    
+    if mpt >= value2 + 2 and value6 < value2:
+        return value2
+    
     return max(value2, value3, value6)
 
 
