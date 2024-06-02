@@ -194,9 +194,9 @@ def expedite(reviewer, admit_plans):
             return 1
         elif pd.isna(row['MACT']) and 356 <= row['MFUND'] <= 465 and row['AALG'] < 455 and row['GPA'] < 3:
             return 2
-        elif row['MACT'] <= 15:
+        elif row['MACT'] <= 16:  #Adjusted from 15 to 16 to be consistent with earier reviews by eForm process
             return 1
-        elif row['MACT'] <= 19 and row['GPA'] < 3:
+        elif row['MACT'] <= 19 and row['GPA'] < 3:   
             return 2
         # Second stage of logic
         elif 24 <= row['MACT'] <= 27 and admit_plan_dict.get(row['Plan'], 0) == 1:
@@ -213,3 +213,25 @@ def expedite(reviewer, admit_plans):
     reviewer['Expedited'] = reviewer.apply(get_expedited_value, axis=1)
     
     return reviewer
+
+
+
+
+
+
+def SEN_MGPA(reviewer, transcript_records):
+    # Merge the reviewer dataframe with transcript_records on 'Emplid'
+    merged_df = reviewer.merge(transcript_records[['Emplid', 'SEN', 'MGPA']], on='Emplid', how='left', suffixes=('', '_transcript'))
+    
+    # Ensure that the combined columns are processed correctly by filling NaN values explicitly
+    merged_df['SEN'] = merged_df['SEN'].fillna(merged_df['SEN_transcript'])
+    merged_df['MGPA'] = merged_df['MGPA'].fillna(merged_df['MGPA_transcript'])
+    
+    # Drop the columns brought from transcript_records
+    merged_df.drop(columns=['SEN_transcript', 'MGPA_transcript'], inplace=True)
+    
+    return merged_df
+
+
+
+
