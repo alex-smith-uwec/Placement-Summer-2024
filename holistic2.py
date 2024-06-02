@@ -20,6 +20,13 @@ def H_none(gpa, mgpa, sen):
     Returns:
     int: MATHH level.
     """
+
+    try:
+        # Convert gpa to float if it's a string
+        gpa = float(gpa)
+    except ValueError:
+        # Handle the case where gpa cannot be converted to a float
+        raise ValueError(f"Invalid GPA value: {gpa}")
     cap_gpa=min(gpa,4)
     # agpa = (cap_gpa + mgpa) / 2
     #geometric mean
@@ -78,6 +85,7 @@ def H_mpt(gpa, mgpa, mpt, sen):
     int: MATHH level.
     """
     h0 = H_none(gpa, mgpa, sen)##updated May 29, 2024 with input from Abra
+    
 
     if mpt <= h0 - 2:
         return h0-1 
