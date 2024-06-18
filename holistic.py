@@ -27,13 +27,15 @@ def reviewer(dash):
     dash['proc_MPT']=None
     dash['MATHH'] = None
     dash['MATHH_date'] = None
+    dash['Reviewer Comment'] = None
+
     
     # Reorder columns
     columns_order = [
-        'Emplid', 'Preferred Name', 'Plan', 'Appt', 'Expedited', 'SEN', 'MGPA', 'GPA',
+        'Emplid', 'Preferred Name', 'Plan', 'Appt', 'Expedited', 'SEN', 'MGPA', 'Reviewer Comment', 'GPA',
         'MACT','Official_MACT', 'Self_MACT', 'SAT Reported MATH', 'Self Reported SAT MATH', 
         'MFUND', 'AALG', 'TAG', 'unproc_MPT', 'Unproc_date', 'WPT MFND', 'WPT AALG', 
-        'WPT TAG', 'proc_MPT', 'Holistic Level', 'MATHH', 'MATHH_date'
+        'WPT TAG', 'proc_MPT', 'Holistic Level', 'MATHH', 'MATHH_date','Email','Email Other'
     ]
     
     dash = dash[columns_order]
@@ -194,7 +196,7 @@ def expedite(reviewer, admit_plans):
             return 1
         elif pd.isna(row['MACT']) and 356 <= row['MFUND'] <= 465 and row['AALG'] < 455 and row['GPA'] < 3:
             return 2
-        elif row['MACT'] <= 16:  #Adjusted from 15 to 16 to be consistent with earier reviews by eForm process
+        elif row['MACT'] <= 15:  
             return 1
         elif row['MACT'] <= 19 and row['GPA'] < 3:   
             return 2
@@ -219,19 +221,26 @@ def expedite(reviewer, admit_plans):
 
 
 
+
+
 def SEN_MGPA(reviewer, transcript_records):
+    # Ensure 'Emplid' is of the same type in both dataframes
+    reviewer['Emplid'] = reviewer['Emplid'].astype(str)
+    transcript_records['Emplid'] = transcript_records['Emplid'].astype(str)
+
     # Merge the reviewer dataframe with transcript_records on 'Emplid'
-    merged_df = reviewer.merge(transcript_records[['Emplid', 'SEN', 'MGPA']], on='Emplid', how='left', suffixes=('', '_transcript'))
-    
+    merged_df = reviewer.merge(transcript_records[['Emplid', 'SEN', 'MGPA','MATHH','MATHH_date','Reviewer Comment']], on='Emplid', how='left', suffixes=('', '_transcript'))
+
     # Ensure that the combined columns are processed correctly by filling NaN values explicitly
     merged_df['SEN'] = merged_df['SEN'].fillna(merged_df['SEN_transcript'])
     merged_df['MGPA'] = merged_df['MGPA'].fillna(merged_df['MGPA_transcript'])
+    merged_df['MATHH'] = merged_df['MATHH'].fillna(merged_df['MATHH_transcript'])
+    merged_df['MATHH_date'] = merged_df['MATHH_date'].fillna(merged_df['MATHH_date_transcript'])
+    merged_df['Reviewer Comment'] = merged_df['Reviewer Comment'].fillna(merged_df['Reviewer Comment_transcript'])
     
-    # Drop the columns brought from transcript_records
-    merged_df.drop(columns=['SEN_transcript', 'MGPA_transcript'], inplace=True)
+    # Drop the temporary '_transcript' columns
+    merged_df = merged_df.drop(columns=['SEN_transcript', 'MGPA_transcript','MATHH_transcript','MATHH_date_transcript','Reviewer Comment_transcript'])
     
     return merged_df
-
-
 
 
